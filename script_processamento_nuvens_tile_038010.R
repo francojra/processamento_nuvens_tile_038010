@@ -97,3 +97,51 @@ mask_valid_v2 <- makeValid(mask_pol_v2)
 # Salvar como shapefile
 
 writeVector(mask_valid_v2, "mask_038010_secundaria.shp", overwrite = TRUE)
+
+# 9) Realizando a comparação da interseção entre os shapefiles de nuvem da principal com a secundária e gerando o resultado final da máscara de nuvem
+
+# Leitura dos shapefiles da principal e secundária
+
+shp_principal <- st_read("mask_038010_principal.shp")
+shp_secundaria <- st_read("mask_038010_secundaria.shp")
+
+shp_principal <- vect(shp_principal)
+shp_secundaria <- vect(shp_secundaria)
+
+# Conferir se os dois shapefiles estão no mesmo CRS
+
+if (st_crs(shp_principal) != st_crs(shp_secundaria)) {
+  shp2 <- st_transform(shp_secundaria, st_crs(shp_principal))
+}
+
+# Agora calcular a interseção
+
+intersecao_nuvem <- intersect(shp_principal, shp_secundaria)
+
+# Ler shapefile original
+
+nuvens <- intersecao_nuvem
+
+# Criar uma cópia (para preservar o original na união final)
+
+nuvens_copia <- nuvens
+
+# Reprojetar para UTM (necessário para buffer em metros)
+
+nuvens <- project(nuvens, "EPSG:31983")
+nuvens_copia <- project(nuvens_copia, "EPSG:31983")
+
+# Buffer duplo (expandir e retrair)
+
+nuvens_buf <- buffer(nuvens, width = 50)
+nuvens_buf <- buffer(nuvens_buf, width = -50)
+
+# Unir com a cópia original (union + dissolve)
+
+nuvens_union <- rbind(nuvens_copia, nuvens_buf)
+nuvens_union <- makeValid(nuvens_union) # corrige geometrias inválidas
+nuvens_final <- aggregate(nuvens_union) # dissolver bordas internas
+
+# Salvar resultado final
+
+writeVector(nuvens_final, "intersec_mask_038010.shp", overwrite = TRUE)

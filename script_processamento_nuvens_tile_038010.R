@@ -190,13 +190,13 @@ nuvens_buf_sec <- buffer(nuvens_buf_sec, width = -50)
 
 # Unir com a cópia original (union + dissolve)
 
-nuvens_union <- rbind(nuvens_copia, nuvens_buf)
-nuvens_union <- makeValid(nuvens_union) # corrige geometrias inválidas
-nuvens_final <- aggregate(nuvens_union) # dissolver bordas internas
+nuvens_union_princ <- rbind(nuvens_copia_princ, nuvens_buf_princ)
+nuvens_union_princ <- makeValid(nuvens_union_princ) # corrige geometrias inválidas
+nuvens_princ_final <- aggregate(nuvens_union_princ) # dissolver bordas internas
 
 # Salvar resultado final
 
-writeVector(nuvens_final, "intersec_mask_038010.shp", overwrite = TRUE)
+writeVector(nuvens_princ_final, "mask_038010_principal_buf.shp", overwrite = TRUE)
 
 ## Finalização no QGIS: 
 

@@ -37,3 +37,19 @@ nuvem_038010_sirgas_principal <- project(nuvem_038010_principal, "EPSG:4674")
 ## https://brazil-data-cube.github.io/specifications/bands/SCL.html
 
 mask_v1 <- nuvem_038010_sirgas_principal %in% c(3, 8, 9, 10, 11)
+
+# Converter para 0/NA - 0 = máscara, NA = fora
+
+mask_v1 <- classify(mask_v1, cbind(0, NA))
+
+# Converter para polígonos
+
+mask_pol_v1 <- as.polygons(mask_v1)
+
+# Limpar microproblemas
+
+mask_pol_v1 <- terra::buffer(mask_pol_v1, 0)
+
+# Máscara final - validando as geometrias
+
+mask_valid <- makeValid(mask_pol_v1)

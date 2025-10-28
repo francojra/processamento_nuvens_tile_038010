@@ -25,3 +25,15 @@ nuvem_038010_principal <- sits_as_terra(nuvem_rm4,
                                         tile = "038010",
                                         bands = "CLOUD"          
 )
+
+# Projetando para garantir que esteja no crs SIRGAS 2000
+
+nuvem_038010_sirgas_principal <- project(nuvem_038010_principal, "EPSG:4674")
+
+# 4) Criando a máscara da imagem principal
+
+## Criar máscara (TRUE onde r == 3. Cloud Shadows, 8. Cloud Medium Probability, 
+## 9. Cloud High Probability, 10. Thin Cirrus, 11. Snow)
+## https://brazil-data-cube.github.io/specifications/bands/SCL.html
+
+mask_v1 <- nuvem_038010_sirgas_principal %in% c(3, 8, 9, 10, 11)

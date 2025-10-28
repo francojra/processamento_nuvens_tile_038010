@@ -146,6 +146,58 @@ nuvens_final <- aggregate(nuvens_union) # dissolver bordas internas
 
 writeVector(nuvens_final, "intersec_mask_038010.shp", overwrite = TRUE)
 
+# Aplicar buffer nas máscaras de nuvens principal e secundária --------------------------------------------------------------------------------------------
+
+# Leitura dos shapefiles da principal e secundária
+
+shp_principal <- st_read("mask_038010_principal.shp")
+shp_secundaria <- st_read("mask_038010_secundaria.shp")
+
+shp_principal <- vect(shp_principal)
+shp_secundaria <- vect(shp_secundaria)
+
+# Conferir se os dois shapefiles estão no mesmo CRS
+
+if (st_crs(shp_principal) != st_crs(shp_secundaria)) {
+  shp2 <- st_transform(shp_secundaria, st_crs(shp_principal))
+}
+
+# Ler shapefile original
+
+nuvens_princ <- shp_principal
+nuvens_sec <- shp_secundaria
+
+# Criar uma cópia (para preservar o original na união final)
+
+nuvens_copia_princ <- nuvens_princ
+nuvens_copia_sec <- nuvens_sec
+
+# Reprojetar para UTM (necessário para buffer em metros)
+
+nuvens_princ <- project(nuvens_princ, "EPSG:31983")
+nuvens_copia_princ <- project(nuvens_copia_princ, "EPSG:31983")
+
+nuvens_sec <- project(nuvens_sec, "EPSG:31983")
+nuvens_copia_sec <- project(nuvens_copia_sec, "EPSG:31983")
+
+# Buffer duplo (expandir e retrair)
+
+nuvens_buf_princ <- buffer(nuvens_princ, width = 50)
+nuvens_buf_princ <- buffer(nuvens_buf_princ, width = -50)
+
+nuvens_buf_sec <- buffer(nuvens_sec, width = 50)
+nuvens_buf_sec <- buffer(nuvens_buf_sec, width = -50)
+
+# Unir com a cópia original (union + dissolve)
+
+nuvens_union <- rbind(nuvens_copia, nuvens_buf)
+nuvens_union <- makeValid(nuvens_union) # corrige geometrias inválidas
+nuvens_final <- aggregate(nuvens_union) # dissolver bordas internas
+
+# Salvar resultado final
+
+writeVector(nuvens_final, "intersec_mask_038010.shp", overwrite = TRUE)
+
 ## Finalização no QGIS: 
 
 ## 1 - Transformar o shape para partes simples, 

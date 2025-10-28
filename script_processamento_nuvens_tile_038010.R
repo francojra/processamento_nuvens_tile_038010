@@ -53,3 +53,16 @@ mask_pol_v1 <- terra::buffer(mask_pol_v1, 0)
 # Máscara final - validando as geometrias
 
 mask_valid <- makeValid(mask_pol_v1)
+
+# Salvar como shapefile
+
+writeVector(mask_valid, "mask_038010_principal.shp", overwrite = TRUE)
+
+# 5) Utilizando o pacote TERRA para produzir um Spatial Raster de uma data específica do cubo para a banda CLOUD - imagem secundária
+
+nuvem_038010_secundaria <- sits_as_terra(nuvem_rm4,
+                                         date = "2024-08-12",
+                                         tile = "038010",
+                                         bands = "CLOUD"          
+                                         
+)

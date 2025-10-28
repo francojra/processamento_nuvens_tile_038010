@@ -145,3 +145,11 @@ nuvens_final <- aggregate(nuvens_union) # dissolver bordas internas
 # Salvar resultado final
 
 writeVector(nuvens_final, "intersec_mask_038010.shp", overwrite = TRUE)
+
+## Finalização no QGIS: 
+
+## 1 - Transformar o shape para partes simples, 
+## 2 - Fazer o cálculo da área e retirar os menores de 1 ha 
+## 3 - Reprojetar e validar as geometrias
+
+###########################################################################################################################################################

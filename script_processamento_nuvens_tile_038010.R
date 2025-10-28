@@ -66,3 +66,34 @@ nuvem_038010_secundaria <- sits_as_terra(nuvem_rm4,
                                          bands = "CLOUD"          
                                          
 )
+
+# Projetando para garantir que esteja no crs SIRGAS 2000
+
+nuvem_038010_sirgas_secundaria <- project(nuvem_038010_secundaria, "EPSG:4674")
+
+# 6) Criando a máscara da imagem secundária
+
+## Criar máscara (TRUE onde r == 3. Cloud Shadows, 8. Cloud Medium Probability, 
+## 9. Cloud High Probability, 10. Thin Cirrus, 11. Snow)
+
+mask_v2 <- nuvem_038010_sirgas_secundaria %in% c(3, 8, 9, 10, 11)
+
+# Converter para 1/NA - 0 = máscara, NA = fora
+
+mask_v2 <- classify(mask_v2, cbind(0, NA))
+
+# Converter para polígonos
+
+mask_pol_v2 <- as.polygons(mask_v2)
+
+# Limpar microproblemas
+
+mask_pol_v2 <- terra::buffer(mask_pol_v2, 0)
+
+# Máscara final - validando as geometrias
+
+mask_valid_v2 <- makeValid(mask_pol_v2)
+
+# Salvar como shapefile
+
+writeVector(mask_valid_v2, "mask_038010_secundaria.shp", overwrite = TRUE)

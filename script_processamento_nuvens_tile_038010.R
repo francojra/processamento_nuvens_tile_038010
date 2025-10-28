@@ -194,9 +194,14 @@ nuvens_union_princ <- rbind(nuvens_copia_princ, nuvens_buf_princ)
 nuvens_union_princ <- makeValid(nuvens_union_princ) # corrige geometrias inválidas
 nuvens_princ_final <- aggregate(nuvens_union_princ) # dissolver bordas internas
 
+nuvens_union_sec <- rbind(nuvens_copia_sec, nuvens_buf_sec)
+nuvens_union_sec <- makeValid(nuvens_union_sec) # corrige geometrias inválidas
+nuvens_sec_final <- aggregate(nuvens_union_sec) # dissolver bordas internas
+
 # Salvar resultado final
 
 writeVector(nuvens_princ_final, "mask_038010_principal_buf.shp", overwrite = TRUE)
+writeVector(nuvens_sec_final, "mask_038010_secundaria_buf.shp", overwrite = TRUE)
 
 ## Finalização no QGIS: 
 
